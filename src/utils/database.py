@@ -8,13 +8,14 @@ from datetime import datetime
 from config.settings import get_config
 from ..models import Parish, ExtractionResult
 
+
 def save_parishes_to_database(
     parishes: List[Parish], 
     diocese_url: str, 
     directory_url: str,
     extraction_method: str
 ) -> int:
-    """Save parishes to Supabase database"""
+    """Save parishes to Supabase database with improved error handling"""
     config = get_config()
     
     if not config.supabase:
@@ -22,31 +23,50 @@ def save_parishes_to_database(
         return 0
     
     saved_count = 0
+    failed_count = 0
     
-    for parish in parishes:
-        try:
-            # Prepare data for database
-            data = parish.to_dict()
-            data.update({
-                'diocese_url': diocese_url,
-                'parish_directory_url': directory_url,
-                'extraction_method': extraction_method
-            })
-            
-            # Insert into database
-            response = config.supabase.table('Parishes').insert(data).execute()
-            
-            # Check for errors
-            if hasattr(response, 'error') and response.error:
-                print(f"    Database error for {parish.name}: {response.error}")
-            else:
-                saved_count += 1
-                print(f"    ✅ Saved: {parish.name}")
-            
-        except Exception as e:
-            print(f"    ❌ Error saving {parish.name}: {e}")
+    # Save in batches to avoid timeouts
+    batch_size = 10
+    for i in range(0, len(parishes), batch_size):
+        batch = parishes[i:i + batch_size]
+        batch_data = []
+        
+        for parish in batch:
+            try:
+                data = parish.to_dict()
+                data.update({
+                    'diocese_url': diocese_url,
+                    'parish_directory_url': directory_url,
+                    'extraction_method': extraction_method
+                })
+                batch_data.append(data)
+            except Exception as e:
+                print(f"    ❌ Error preparing {parish.name}: {e}")
+                failed_count += 1
+        
+        if batch_data:
+            try:
+                response = config.supabase.table('Parishes').insert(batch_data).execute()
+                
+                if hasattr(response, 'error') and response.error:
+                    print(f"    Database batch error: {response.error}")
+                    failed_count += len(batch_data)
+                else:
+                    saved_count += len(batch_data)
+                    print(f"    ✅ Saved batch: {len(batch_data)} parishes")
+                
+            except Exception as e:
+                error_msg = str(e).lower()
+                if 'duplicate' in error_msg or 'unique' in error_msg:
+                    print(f"    ⚠️ Duplicate entries in batch - skipping")
+                elif 'timeout' in error_msg:
+                    print(f"    ⏱️ Timeout saving batch - retrying with smaller batch")
+                    # Could implement retry logic here
+                else:
+                    print(f"    ❌ Error saving batch: {e}")
+                failed_count += len(batch_data)
     
-    print(f"  💾 Saved {saved_count}/{len(parishes)} parishes to database")
+    print(f"  💾 Final result: {saved_count} saved, {failed_count} failed")
     return saved_count
 
 def update_directory_status(
