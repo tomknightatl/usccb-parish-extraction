@@ -6,10 +6,14 @@ A comprehensive, AI-powered system for extracting Catholic diocese and parish da
 
 ## 🚀 Quick Start in Google Colab
 
-1. **Clone the repository:**
-   ```python
-   !git clone https://github.com/tomknightatl/usccb-parish-extraction.git
-   ```
+1. **Open Colab and Clone the repository:**
+   - Open [https://colab.research.google.com/]([url](https://colab.research.google.com/))
+   - Click "+ New notebook"
+   - Enter this code into the first cell:
+       ```python
+       !git clone https://github.com/tomknightatl/usccb-parish-extraction.git
+       ```
+   - Run that cell to clone the repo
 
 2. **Run the setup notebook:**
    - Open `notebooks/00_Colab_Setup.ipynb`
