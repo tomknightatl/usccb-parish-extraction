@@ -16,14 +16,20 @@ A comprehensive, AI-powered system for extracting Catholic diocese and parish da
    - Run that cell to clone the repo
 
 2. **Run the setup notebook:**
-   - Open `notebooks/00_Colab_Setup.ipynb`
+   - Choose File > Open Notebook
+   - Click on GitHub
+   - Enter the GitHub repo URL:
+       `tomknightatl`
+   - Select the repository: `tomknightatl/usccb-parish-extraction`
+   - Select the branch: `main`         
+   - Open: `notebooks/00_Colab_Setup.ipynb`
    - Add your API keys to Colab Secrets:
      - `SUPABASE_URL` - Your Supabase project URL
      - `SUPABASE_KEY` - Your Supabase API key  
      - `GENAI_API_KEY_USCCB` - Your Google AI API key
    - Run all cells in the setup notebook
 
-3. **Run the demo:**
+4. **Run the demo:**
    - Open `notebooks/99_Simple_Demo.ipynb`
    - Run all cells to extract parish data
 
