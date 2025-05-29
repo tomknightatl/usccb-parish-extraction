@@ -23,4 +23,44 @@ class BaseExtractor(ABC):
     
     def clean_text(self, text: str) -> str:
         """Clean and normalize text"""
-        return clean
+        return clean_text(text)
+    
+    def extract_phone(self, text: str) -> str:
+        """Extract phone number from text"""
+        return extract_phone(text)
+    
+    def validate_parish_name(self, name: str) -> bool:
+        """Validate that a string looks like a valid parish name"""
+        if not name or len(name.strip()) < 3:
+            return False
+        
+        # Skip obvious non-parish entries
+        skip_terms = [
+            'contact', 'office', 'directory', 'finder', 'search', 'filter',
+            'map', 'diocese', 'bishop', 'center', 'no parish registration'
+        ]
+        
+        name_lower = name.lower()
+        if any(term in name_lower for term in skip_terms):
+            return False
+        
+        # Must contain parish-like words
+        parish_indicators = [
+            'parish', 'church', 'st.', 'saint', 'our lady', 'holy', 
+            'cathedral', 'chapel', 'basilica', 'shrine'
+        ]
+        
+        return any(indicator in name_lower for indicator in parish_indicators)
+    
+    def remove_duplicates(self, parishes: List[Parish]) -> List[Parish]:
+        """Remove duplicate parishes based on name"""
+        unique_parishes = []
+        seen_names = set()
+        
+        for parish in parishes:
+            name_key = parish.name.lower().strip()
+            if name_key not in seen_names and self.validate_parish_name(parish.name):
+                unique_parishes.append(parish)
+                seen_names.add(name_key)
+        
+        return unique_parishes
