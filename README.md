@@ -8,7 +8,7 @@ A comprehensive, AI-powered system for extracting Catholic diocese and parish da
 
 1. **Clone the repository:**
    ```python
-   !git clone https://github.com/yourusername/usccb-parish-extraction.git
+   !git clone https://github.com/tomknightatl/usccb-parish-extraction.git
    ```
 
 2. **Run the setup notebook:**
