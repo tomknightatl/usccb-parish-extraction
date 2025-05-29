@@ -294,3 +294,10 @@ class ParishExtractionPipeline:
                     for p in result.parishes
                 ]
             })
+        
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(serializable_results, f, indent=2, ensure_ascii=False)
+            print(f"💾 Results saved to: {filename}")
+        except Exception as e:
+            print(f"❌ Error saving results: {e}")
